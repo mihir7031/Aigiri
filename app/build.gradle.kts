@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -78,9 +78,9 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.navigation.compose.android)
     implementation(libs.androidx.foundation.android)
-    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.animation.core.lint)
 
 
     // Test dependencies
@@ -100,8 +100,16 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.twilio.sdk:twilio:10.2.0")
-    implementation("com.google.dagger:hilt-android:2.48")
+    implementation (platform("com.google.firebase:firebase-bom:32.8.1") )// Use BoM
 
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    implementation ("com.google.firebase:firebase-firestore-ktx")
+
+    // Optional: If you're using Kotlin coroutines with Firebase
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.0")
+
+    implementation ("org.mindrot:jbcrypt:0.4")
 
 
 
