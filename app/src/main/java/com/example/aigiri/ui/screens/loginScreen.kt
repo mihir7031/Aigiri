@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.aigiri.viewmodel.LoginUiState
 
 import com.example.aigiri.viewmodel.LoginViewModel
 
@@ -30,6 +31,10 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     val isValid = identifier.isNotBlank() && password.isNotBlank()
 
+    val loginState by viewModel.loginState.collectAsState()
+
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,7 +42,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Login", fontSize = 26.sp ,  color = Color(0xFF6A1B9A))
+        Text("Login", fontSize = 26.sp, color = Color(0xFF6A1B9A))
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -52,8 +57,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        var passwordVisible by remember { mutableStateOf(false) }
-
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -62,18 +65,21 @@ fun LoginScreen(
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
 //            trailingIcon = {
-//                val image = if (passwordVisible)
-//                    Icon
+//                val visibilityIcon = if (passwordVisible)
+//                    Icons.Default.Visibility
 //                else
+//                    Icons.Default.VisibilityOff
 //
 //                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-//                    Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
+//                    Icon(
+//                        imageVector = visibilityIcon,
+//                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
+//                    )
 //                }
 //            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
-
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -91,7 +97,7 @@ fun LoginScreen(
 
         Button(
             onClick = { viewModel.login(identifier, password) },
-            enabled = isValid,
+            enabled = isValid && loginState !is LoginUiState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -99,6 +105,26 @@ fun LoginScreen(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text("Login", color = Color.White, fontSize = 16.sp)
+        }
+
+        // Show loading indicator
+        if (loginState is LoginUiState.Loading) {
+            Spacer(modifier = Modifier.height(16.dp))
+            CircularProgressIndicator()
+        }
+
+        // Show error message
+        if (loginState is LoginUiState.Error) {
+            Spacer(modifier = Modifier.height(16.dp))
+            val message = (loginState as LoginUiState.Error).message
+            Text(text = message, color = Color.Red, fontSize = 14.sp)
+        }
+
+        // Navigate on success
+        if (loginState is LoginUiState.Success) {
+            LaunchedEffect(Unit) {
+                navController.navigate("home") // Replace "home" with your actual screen
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

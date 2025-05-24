@@ -1,15 +1,11 @@
 package com.example.aigiri.viewmodel
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aigiri.repository.OtpRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
-
-
 
 data class OtpUiState(
     val otpInput: List<String> = List(6) { "" },
@@ -60,22 +56,25 @@ class VerifyOtpViewModel(
     fun resendOtp(phoneNumber: String, onSuccess: (String) -> Unit) {
         viewModelScope.launch {
             val newOtp = (100000..999999).random().toString()
-            val result = otpRepository.sendOtp("+91$phoneNumber", newOtp)
-            if (result.isSuccess) {
-                _uiState.update {
-                    it.copy(
-                        timeLeft = 60,
-                        error = "",
-                        otpInput = List(6) { "" },
-                        verificationId = newOtp
-                    )
+            try {
+                val response = otpRepository.sendOtp(phoneNumber, newOtp)
+                if (response.isSuccess) {
+                    _uiState.update {
+                        it.copy(
+                            timeLeft = 60,
+                            error = "",
+                            otpInput = List(6) { "" },
+                            verificationId = newOtp
+                        )
+                    }
+                    startTimer()
+                    onSuccess(newOtp)
+                } else {
+                    _uiState.update { it.copy(error = "Failed to resend OTP") }
                 }
-                startTimer()
-                onSuccess(newOtp)
-            } else {
-                _uiState.update { it.copy(error = "Failed to resend OTP") }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Exception: ${e.localizedMessage}") }
             }
         }
     }
 }
-
