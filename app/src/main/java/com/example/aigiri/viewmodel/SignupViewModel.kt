@@ -3,6 +3,7 @@ package com.example.aigiri.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aigiri.model.OtpRequest
 import com.example.aigiri.model.User
 import com.example.aigiri.repository.OtpRepository
 import com.example.aigiri.repository.UserRepository
@@ -54,10 +55,16 @@ class SignupViewModel(
     }
 
     fun checkPhone(phone: String) {
-        if (!phone.startsWith("+") || phone.length <= 11 || phone.length > 15) {
-            _uiState.value = SendOtpUiState.Error("Invalid phone number format")
+        // Validate format locally
+        val isValid =
+            phone.startsWith("+") && phone.length == 13 && phone.drop(1).all { it.isDigit() }
+
+        if (!isValid) {
+            phoneTaken.value = false // Clear existing state
             return
         }
+
+        // Check availability only if format is valid
         viewModelScope.launch {
             userRepository.isPhoneTaken(phone).onSuccess {
                 phoneTaken.value = it
@@ -66,8 +73,12 @@ class SignupViewModel(
     }
 
     fun sendOtp(phoneNumber: String) {
-        if (phoneNumber.length != 13) {
-            _uiState.value = SendOtpUiState.Error("Enter a valid phone number (e.g., +919876543210)")
+        val isValid = phoneNumber.startsWith("+") && phoneNumber.length == 13 && phoneNumber.drop(1)
+            .all { it.isDigit() }
+
+        if (!isValid) {
+            _uiState.value =
+                SendOtpUiState.Error("Enter a valid phone number (e.g., +919876543210)")
             return
         }
 
@@ -75,14 +86,25 @@ class SignupViewModel(
         _uiState.value = SendOtpUiState.Loading
 
         viewModelScope.launch {
-            val result = otpRepository.sendOtp(phoneNumber, otp)
-            if (result.isSuccess) {
-                _uiState.value = SendOtpUiState.Success(phoneNumber, otp)
-            } else {
-                _uiState.value = SendOtpUiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            try {
+                val result = otpRepository.sendOtp(phoneNumber, otp)
+                if (result.isSuccess) {
+                    _uiState.value = SendOtpUiState.Success(phoneNumber, otp)
+                } else {
+                    // get error message from failure exception
+                    val errorMessage = result.exceptionOrNull()?.message ?: "Something went wrong"
+                    _uiState.value = SendOtpUiState.Error(errorMessage)
+                }
+            } catch (e: Exception) {
+                _uiState.value = SendOtpUiState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
 }
+
+
+
+
+
 
 

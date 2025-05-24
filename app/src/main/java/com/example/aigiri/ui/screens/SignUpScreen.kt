@@ -1,5 +1,4 @@
 package com.example.aigiri.ui.screens
-
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
 import androidx.compose.material3.*
@@ -14,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import com.example.aigiri.viewmodel.SendOtpUiState
 import com.example.aigiri.viewmodel.SignupViewModel
-
 @Composable
 fun SignUpScreen(
     navController: NavController,
@@ -24,13 +22,7 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-
-    val countryCodes = listOf("+91", "+1", "+44")
-    var selectedCountryCode by remember { mutableStateOf(countryCodes[0]) }
-    var phoneNumber by remember { mutableStateOf("") }
-
-    val fullPhoneNumber = selectedCountryCode + phoneNumber
-
+    var phoneNumber by remember { mutableStateOf("+91") }
     val isPasswordValid = isValidPassword(password)
 
     val state by viewModel.uiState.collectAsState()
@@ -39,13 +31,21 @@ fun SignUpScreen(
     val phoneTaken by viewModel.phoneTaken.collectAsState()
 
     val isUsernameValid = username.isNotBlank()
-    val isConfirmPasswordValid = confirmPassword == password && confirmPassword.isNotBlank()
-    val isPhoneValid = phoneNumber.length == 10 && phoneNumber.all { it.isDigit() }
-    val isEmailValid = email.isEmpty() || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    val isConfirmPasswordValid = confirmPassword.isNotBlank() && confirmPassword == password
+    val isPhoneValid = phoneNumber.length == 13
 
-    val isFormValid = isUsernameValid && isPasswordValid && isConfirmPasswordValid &&
-            isPhoneValid && isEmailValid &&
+    val isFormValid = isUsernameValid && isPasswordValid && isConfirmPasswordValid && isPhoneValid &&
             !usernameTaken && !emailTaken && !phoneTaken
+
+    val isLoading = state is SendOtpUiState.Loading
+
+    // Handle navigation safely on success
+    LaunchedEffect(state) {
+        if (state is SendOtpUiState.Success) {
+            val successState = state as SendOtpUiState.Success
+            navController.navigate("verify_otp/${successState.phoneNumber}/${successState.otp}")
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -53,9 +53,11 @@ fun SignUpScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Create your account", fontSize = 22.sp, color = Color(0xFF6A1B9A))
+        Text("Create your account", fontSize = 22.sp , color = Color(0xFF6A1B9A))
+
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Username field
         OutlinedTextField(
             value = username,
             onValueChange = {
@@ -75,6 +77,7 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Password field
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -86,26 +89,17 @@ fun SignUpScreen(
         )
         if (password.isNotEmpty() && !isPasswordValid) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (password.length < 8) {
-                    Text("Password must be at least 8 characters", color = Color.Red, fontSize = 12.sp)
-                }
-                if (!password.any { it.isUpperCase() }) {
-                    Text("Password must contain at least one uppercase letter", color = Color.Red, fontSize = 12.sp)
-                }
-                if (!password.any { it.isLowerCase() }) {
-                    Text("Password must contain at least one lowercase letter", color = Color.Red, fontSize = 12.sp)
-                }
-                if (!password.any { it.isDigit() }) {
-                    Text("Password must contain at least one digit", color = Color.Red, fontSize = 12.sp)
-                }
-                if (!password.any { "!@#\$%^&*()_+=-{}[]|:;\"'<>,.?/".contains(it) }) {
-                    Text("Password must contain at least one special character", color = Color.Red, fontSize = 12.sp)
-                }
+                if (password.length < 8) Text("Password must be at least 8 characters", color = Color.Red, fontSize = 12.sp)
+                if (!password.any { it.isUpperCase() }) Text("At least one uppercase letter", color = Color.Red, fontSize = 12.sp)
+                if (!password.any { it.isLowerCase() }) Text("At least one lowercase letter", color = Color.Red, fontSize = 12.sp)
+                if (!password.any { it.isDigit() }) Text("At least one digit", color = Color.Red, fontSize = 12.sp)
+                if (!password.any { "!@#\$%^&*()_+=-{}[]|:;\"'<>,.?/".contains(it) }) Text("At least one special character", color = Color.Red, fontSize = 12.sp)
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Confirm Password
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
@@ -121,6 +115,7 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Email
         OutlinedTextField(
             value = email,
             onValueChange = {
@@ -131,77 +126,41 @@ fun SignUpScreen(
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            isError = email.isNotEmpty() && (!isEmailValid || emailTaken)
+            isError = emailTaken
         )
-        if (email.isNotEmpty() && !isEmailValid) {
-            Text("Enter a valid email address", color = Color.Red, fontSize = 12.sp)
-        } else if (emailTaken) {
+        if (emailTaken) {
             Text("Email is already in use", color = Color.Red, fontSize = 12.sp)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            var expanded by remember { mutableStateOf(false) }
-
-            Box(modifier = Modifier.wrapContentSize()) {
-                OutlinedButton(
-                    onClick = { expanded = true },
-                    modifier = Modifier.width(100.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(selectedCountryCode)
+        // Phone
+        OutlinedTextField(
+            value = phoneNumber,
+            onValueChange = {
+                if (it.length <= 13) {
+                    phoneNumber = it
+                    viewModel.checkPhone(it)
                 }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    countryCodes.forEach { code ->
-                        DropdownMenuItem(
-                            text = { Text(code) },
-                            onClick = {
-                                selectedCountryCode = code
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = {
-                    if (it.length <= 10 && it.all { char -> char.isDigit() }) {
-                        phoneNumber = it
-                        viewModel.checkPhone(fullPhoneNumber)
-                    }
-                },
-                label = { Text("Phone Number") },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                isError = phoneNumber.isNotEmpty() && (!isPhoneValid || phoneTaken)
-            )
-        }
-
+            },
+            label = { Text("+91XXXXXXXXXX") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            isError = phoneNumber.isNotEmpty() && (!isPhoneValid || phoneTaken)
+        )
         if (phoneNumber.isNotEmpty() && !isPhoneValid) {
-            Text("Enter a valid 10-digit phone number", color = Color.Red, fontSize = 12.sp)
-        } else if (phoneTaken) {
+            Text("Enter a valid phone number", color = Color.Red, fontSize = 12.sp)
+        } else if (isPhoneValid && phoneTaken) {
             Text("Phone number already in use", color = Color.Red, fontSize = 12.sp)
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Submit Button
         Button(
-            onClick = { viewModel.sendOtp(fullPhoneNumber) },
-            enabled = isFormValid,
+            onClick = { viewModel.sendOtp(phoneNumber) },
+            enabled = isFormValid && !isLoading,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
@@ -209,21 +168,22 @@ fun SignUpScreen(
             Text("Next", color = Color.White)
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Show loading or error
         when (state) {
-            is SendOtpUiState.Loading -> CircularProgressIndicator()
-            is SendOtpUiState.Error -> Text((state as SendOtpUiState.Error).message, color = Color.Red)
-            is SendOtpUiState.Success -> {
-                val s = state as SendOtpUiState.Success
-                LaunchedEffect(state) {
-                    navController.navigate("verify_otp/${s.phoneNumber}/${s.otp}")
-                }
+            is SendOtpUiState.Loading -> CircularProgressIndicator(color = Color(0xFF6A1B9A))
+            is SendOtpUiState.Error -> {
+                val errorState = state as SendOtpUiState.Error
+                Text(errorState.message, color = Color.Red, fontSize = 14.sp)
             }
             else -> {}
         }
     }
 }
 
-// Helper function
+
+
 fun isValidPassword(password: String): Boolean {
     return password.length >= 8 &&
             password.any { it.isUpperCase() } &&
@@ -231,3 +191,6 @@ fun isValidPassword(password: String): Boolean {
             password.any { it.isDigit() } &&
             password.any { "!@#\$%^&*()_+=-{}[]|:;\"'<>,.?/".contains(it) }
 }
+
+
+
