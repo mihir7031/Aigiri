@@ -110,6 +110,7 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended:1.6.0")
 
     implementation ("org.mindrot:jbcrypt:0.4")
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
 
 

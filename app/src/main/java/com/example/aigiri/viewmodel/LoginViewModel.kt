@@ -1,14 +1,14 @@
 package com.example.aigiri.viewmodel
 
-
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import com.example.aigiri.TokenManager
+import com.example.aigiri.model.LoginRequest
+import com.example.aigiri.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 sealed class LoginUiState {
     object Idle : LoginUiState()
@@ -17,11 +17,12 @@ sealed class LoginUiState {
     data class Error(val message: String) : LoginUiState()
 }
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val tokenManager: TokenManager,
+    context: Context
+) : ViewModel() {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val usersCollection = db.collection("users")
+    private val repository = AuthRepository(context)
 
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginState: StateFlow<LoginUiState> = _loginState
@@ -30,42 +31,26 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _loginState.value = LoginUiState.Loading
             try {
-                var userDoc = usersCollection.whereEqualTo("email", identifier).get().await()
-
-                if (userDoc.isEmpty) {
-                    userDoc = usersCollection.whereEqualTo("username", identifier).get().await()
-                }
-                if (userDoc.isEmpty) {
-                    userDoc = usersCollection.whereEqualTo("phoneNo", identifier).get().await()
-                }
-                if (userDoc.isEmpty) {
-                    _loginState.value = LoginUiState.Error("User not found")
-                    return@launch
-                }
-
-                val user = userDoc.documents.first()
-                val email = user.getString("email") ?: ""
-
-                if (email.isEmpty()) {
-                    _loginState.value = LoginUiState.Error("User email not found")
-                    return@launch
-                }
-
-                // Firebase Auth sign-in with email and password
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            _loginState.value = LoginUiState.Success(auth.currentUser?.uid ?: "")
-                        } else {
-                            _loginState.value =
-                                LoginUiState.Error(task.exception?.localizedMessage ?: "Login failed")
-                        }
+                val response = repository.login(LoginRequest(identifier, password))
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null) {
+                        tokenManager.saveToken(body.token)
+                        _loginState.value = LoginUiState.Success(body.userId)
+                    } else {
+                        _loginState.value = LoginUiState.Error("Empty response")
                     }
-
+                } else {
+                    val error = response.errorBody()?.string() ?: response.message()
+                    _loginState.value = LoginUiState.Error("Login failed: $error")
+                }
             } catch (e: Exception) {
-                _loginState.value = LoginUiState.Error(e.localizedMessage ?: "Unknown error")
+                _loginState.value = LoginUiState.Error("Error: ${e.localizedMessage}")
             }
         }
     }
-}
 
+    fun resetState() {
+        _loginState.value = LoginUiState.Idle
+    }
+}

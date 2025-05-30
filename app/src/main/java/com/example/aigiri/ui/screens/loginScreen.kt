@@ -4,36 +4,38 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material.icons.Icons
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.aigiri.viewmodel.LoginUiState
-
 import com.example.aigiri.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val isValid = identifier.isNotBlank() && password.isNotBlank()
-
+    var passwordVisible by remember { mutableStateOf(false) }
     val loginState by viewModel.loginState.collectAsState()
 
-    var passwordVisible by remember { mutableStateOf(false) }
+    val isValid = identifier.isNotBlank() && password.isNotBlank()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = Modifier
@@ -48,11 +50,12 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = identifier,
-            onValueChange = { identifier = it },
+            onValueChange = { identifier = it.trim() },
             label = { Text("Username") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -63,20 +66,14 @@ fun LoginScreen(
             label = { Text("Password") },
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-//            trailingIcon = {
-//                val visibilityIcon = if (passwordVisible)
-//                    Icons.Default.Visibility
-//                else
-//                    Icons.Default.VisibilityOff
-//
-//                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-//                    Icon(
-//                        imageVector = visibilityIcon,
-//                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
-//                    )
-//                }
-//            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            trailingIcon = {
+                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val desc = if (passwordVisible) "Hide password" else "Show password"
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = icon, contentDescription = desc)
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
@@ -89,14 +86,19 @@ fun LoginScreen(
             fontSize = 14.sp,
             modifier = Modifier
                 .align(Alignment.End)
-                .clickable {},
+                .clickable {
+                    navController.navigate("forgot_password") // Implement this route
+                },
             textDecoration = TextDecoration.Underline
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.login(identifier, password) },
+            onClick = {
+                keyboardController?.hide()
+                viewModel.login(identifier, password)
+            },
             enabled = isValid && loginState !is LoginUiState.Loading,
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,25 +109,29 @@ fun LoginScreen(
             Text("Login", color = Color.White, fontSize = 16.sp)
         }
 
-        // Show loading indicator
         if (loginState is LoginUiState.Loading) {
             Spacer(modifier = Modifier.height(16.dp))
             CircularProgressIndicator()
         }
 
-        // Show error message
         if (loginState is LoginUiState.Error) {
             Spacer(modifier = Modifier.height(16.dp))
-            val message = (loginState as LoginUiState.Error).message
-            Text(text = message, color = Color.Red, fontSize = 14.sp)
+            Text(
+                text = (loginState as LoginUiState.Error).message,
+                color = Color.Red,
+                fontSize = 14.sp
+            )
         }
 
-        // Navigate on success
-        if (loginState is LoginUiState.Success) {
-            LaunchedEffect(Unit) {
-                navController.navigate("home") // Replace "home" with your actual screen
+        LaunchedEffect(loginState) {
+            if (loginState is LoginUiState.Success) {
+                navController.navigate("dashboard") {
+                    popUpTo("login") { inclusive = true }
+                }
+                viewModel.resetState()
             }
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
