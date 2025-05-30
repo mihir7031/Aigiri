@@ -106,7 +106,7 @@ class UserDao(private val db: FirebaseFirestore = FirebaseFirestore.getInstance(
     suspend fun isPhoneTaken(phoneNo: String): Result<Boolean> {
         return try {
             val snapshot = usersCollection
-                .whereEqualTo("phoneNo", phoneNo)
+                .whereEqualTo("phone_no", phoneNo)
                 .get()
                 .await()
             Result.success(!snapshot.isEmpty)
