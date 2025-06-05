@@ -1,19 +1,19 @@
+require('dotenv').config();
+
 const express = require("express");
 const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// Initialize Firebase Admin SDK (use your service account json file)
 admin.initializeApp({
-    credential: admin.credential.cert(require("./serviceAccountKey.json")),
+    credential: admin.credential.cert(require(process.env.GOOGLE_APPLICATION_CREDENTIALS)),
 });
 
 const db = admin.firestore();
 const app = express();
 app.use(express.json());
 
-// JWT secret key (store securely in env vars in production)
-const JWT_SECRET = "your_jwt_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Login endpoint
 app.post("/login", async (req, res) => {
