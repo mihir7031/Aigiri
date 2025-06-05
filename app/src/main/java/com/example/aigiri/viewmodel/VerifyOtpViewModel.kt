@@ -15,7 +15,7 @@ data class OtpUiState(
 )
 
 class VerifyOtpViewModel(
-    private val otpRepository: OtpRepository
+    private val otpRepository: OtpRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OtpUiState())

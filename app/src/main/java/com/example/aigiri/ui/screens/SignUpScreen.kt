@@ -159,7 +159,8 @@ fun SignUpScreen(
 
         // Submit Button
         Button(
-            onClick = { viewModel.sendOtp(phoneNumber) },
+            onClick = {
+                viewModel.sendOtp(phoneNumber) },
             enabled = isFormValid && !isLoading,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),

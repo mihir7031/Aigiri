@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
+import com.example.aigiri.viewmodel.SignupViewModel
 
 
 @Composable
@@ -29,7 +30,8 @@ fun VerifyOtpScreen(
     navController: NavController,
     phoneNumber: String,
     verificationId: String,
-    viewModel: VerifyOtpViewModel
+    viewModel: VerifyOtpViewModel,
+    signupViewModel: SignupViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
     val focusRequesters = remember { List(6) { FocusRequester() } }
