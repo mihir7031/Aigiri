@@ -58,7 +58,8 @@ fun AppNavigation(startDestination: String) {
                 navController = navController,
                 phoneNumber = phoneNumber,
                 verificationId = verificationId,
-                viewModel = verifyOtpViewModel
+                viewModel = verifyOtpViewModel,
+                signupViewModel = signupViewModel
             )
         }
         composable("dashboard") {

@@ -8,9 +8,6 @@ import kotlinx.coroutines.tasks.await
 class UserDao(private val db: FirebaseFirestore = FirebaseFirestore.getInstance()) {
 
     private val usersCollection = db.collection("User")
-
-    // Save user to Firestore with auto-generated document ID
-    // Returns the Firestore-generated user document ID on success
     suspend fun saveUser(user: User): Result<String> {
         return try {
             val docRef = usersCollection
@@ -21,6 +18,7 @@ class UserDao(private val db: FirebaseFirestore = FirebaseFirestore.getInstance(
             Result.failure(e)
         }
     }
+
 
     // Add emergency contact to user's subcollection by Firestore user document ID
     suspend fun addEmergencyContact(userDocId: String, contact: EmergencyContact): Result<Unit> {

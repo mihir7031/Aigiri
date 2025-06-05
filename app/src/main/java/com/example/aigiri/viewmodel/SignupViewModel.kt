@@ -10,7 +10,7 @@ import com.example.aigiri.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
+import org.mindrot.jbcrypt.BCrypt
 
 
 sealed class SendOtpUiState {
@@ -100,6 +100,8 @@ class SignupViewModel(
             }
         }
     }
+
+
 }
 
 
