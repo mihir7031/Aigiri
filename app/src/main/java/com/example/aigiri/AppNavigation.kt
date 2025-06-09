@@ -3,6 +3,7 @@ package com.example.aigiri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +28,9 @@ fun AppNavigation(startDestination: String) {
     val loginViewModel = remember {
         LoginViewModel(TokenManager(context), context)
     }
-
+    val DashboardViewModel= remember {
+        DashboardViewModel(TokenManager(context))
+    }
     NavHost(navController = navController, startDestination = startDestination) {
         composable("splash") {
             SplashScreen(onSplashComplete = {
@@ -43,7 +46,7 @@ fun AppNavigation(startDestination: String) {
             SignUpScreen(navController = navController, viewModel = signupViewModel)
         }
         composable("login") {
-            LoginScreen(navController = navController, viewModel = loginViewModel)
+            LoginScreen(navController = navController, viewModel = loginViewModel, tokenManager = TokenManager(context))
         }
         composable(
             "verify_otp/{phoneNumber}/{verificationId}",
@@ -63,7 +66,7 @@ fun AppNavigation(startDestination: String) {
             )
         }
         composable("dashboard") {
-            DashboardScreen()
+            DashboardScreen(viewModel = DashboardViewModel,navController=navController,tokenManager=TokenManager(context))
         }
         composable("forgot_password") {
             ForgotPasswordScreen()

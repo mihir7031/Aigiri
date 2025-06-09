@@ -21,13 +21,15 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.aigiri.TokenManager
 import com.example.aigiri.viewmodel.LoginUiState
 import com.example.aigiri.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel
+    viewModel: LoginViewModel,
+    tokenManager: TokenManager
 ) {
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -123,8 +125,10 @@ fun LoginScreen(
             )
         }
 
-        LaunchedEffect(loginState) {
-            if (loginState is LoginUiState.Success) {
+        val token by tokenManager.tokenFlow.collectAsState(initial = null)
+
+        LaunchedEffect(loginState, token) {
+            if (loginState is LoginUiState.Success && token != null) {
                 navController.navigate("dashboard") {
                     popUpTo("login") { inclusive = true }
                 }
