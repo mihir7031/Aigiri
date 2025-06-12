@@ -16,13 +16,13 @@ data class NavigationItem(val name: String, val icon: ImageVector, val route: St
 
 val bottomNavItems = listOf(
     NavigationItem("Home", Icons.Filled.Home, "dashboard"),
-    NavigationItem("Reports", Icons.Filled.MailOutline, "reportHistory"),
+    NavigationItem("History", Icons.Filled.MailOutline, "history"),
     NavigationItem("SOS", Icons.Filled.Warning, "sos"),
     NavigationItem("Chatbot", Icons.Filled.Hub, "chatbot")
 )
 
 @Composable
-fun bottomNavBar(
+fun BottomNavBar(
     navController: NavHostController,
     items: List<NavigationItem> = bottomNavItems,
     primaryColor: Color = Color(0xFF6A1B9A),

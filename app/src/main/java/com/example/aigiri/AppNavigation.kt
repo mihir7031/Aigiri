@@ -71,13 +71,11 @@ fun AppNavigation(startDestination: String) {
         composable("forgot_password") {
             ForgotPasswordScreen()
         }
+        composable("history")
+        {
+         HistoryScreen()
+        }
     }
 }
 
-//Logout Logic
-//viewModelScope.launch {
-//    tokenManager.clearToken()
-//    navController.navigate("login") {
-//        popUpTo("dashboard") { inclusive = true }
-//    }
-//}
+

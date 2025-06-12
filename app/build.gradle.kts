@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.animation.core.lint)
+    implementation(libs.androidx.ui.test.android)
+    implementation(libs.androidx.ui.test.android)
 
 
     // Test dependencies

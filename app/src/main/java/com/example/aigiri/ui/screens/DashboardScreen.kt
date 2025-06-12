@@ -1,35 +1,28 @@
 package com.example.aigiri.ui.screens
 
 
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SettingsPower
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.aigiri.R
 import com.example.aigiri.TokenManager
 import com.example.aigiri.viewmodel.DashboardViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
@@ -38,54 +31,12 @@ fun DashboardScreen(
 ) {
     val primaryPurple = Color(0xFF6A1B9A)
     val lightPurple = Color(0xFFF1E6FF)
-    val token by tokenManager.tokenFlow.collectAsState(initial = null)
-
-    LaunchedEffect(token) {
-        if (token == null) {
-            navController.navigate("login") {
-                popUpTo("dashboard") { inclusive = true }
-            }
-        }
-    }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.durga),
-                            contentDescription = "Logo",
-                            modifier = Modifier.size(24.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Aigiri",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.logout() }) {
-                        Icon(
-                            imageVector = Icons.Filled.SettingsPower,
-                            contentDescription = "Logout",
-                            tint = primaryPurple
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
-            )
+            TopNavBar(title = "Aigiri",viewModel=viewModel, navController=navController, tokenManager=tokenManager)
         },
         bottomBar = {
-            bottomNavBar(navController)
+            BottomNavBar(navController)
         }
     ) { paddingValues ->
         DashboardContent(

@@ -156,5 +156,18 @@ class UserDao(private val db: FirebaseFirestore = FirebaseFirestore.getInstance(
             Result.failure(e)
         }
     }
+    suspend fun getUserById(userId: String): Result<User?> {
+        return try {
+            val document = usersCollection
+                .document(userId)
+                .get()
+                .await()
+            val user = document.toObject(User::class.java)
+            Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
 }
