@@ -45,5 +45,10 @@ class UserRepository(private val userDao: UserDao = UserDao()) {
     suspend fun isUsernameTaken(username: String): Result<Boolean> {
         return userDao.isUsernameTaken(username)
     }
-
+    suspend fun fetchUserByUsername(username: String): Result<User?> {
+        return userDao.getUserByUsername(username)
+    }
+    suspend fun fetchPasswordByUsername(username: String):Result<String?>{
+        return userDao.getPasswordByUsername(username)
+    }
 }

@@ -31,5 +31,5 @@ object RetrofitInstance {
         }
     }
 
-    private const val BASE_URL = "http://192.168.97.249:3001/"
+    private const val BASE_URL = "http://192.168.201.249:3001/"
 }

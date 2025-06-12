@@ -1,4 +1,4 @@
-package com.example.aigiri.ui.screens
+package com.example.aigiri.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
@@ -12,13 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SettingsPower
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp

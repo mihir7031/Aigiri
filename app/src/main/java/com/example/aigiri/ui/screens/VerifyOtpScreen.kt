@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
+import com.example.aigiri.repository.UserRepository
 import com.example.aigiri.viewmodel.SignupViewModel
 
 
@@ -85,10 +86,22 @@ fun VerifyOtpScreen(
 
         Button(
             onClick = {
-                viewModel.verifyOtp {
-                    navController.navigate("profile_setup/$phoneNumber") {
-                        popUpTo("splash") { inclusive = true }
-                    }
+                val tempUser = signupViewModel.getTempUser()
+                if (tempUser != null) {
+                    viewModel.setTempUser(tempUser) // Set user before verifying
+                    viewModel.verifyOtp(
+                        onSuccess = {
+                            navController.navigate("profile_setup/$phoneNumber") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                        },
+                        onError = {
+                            // Optional: Show snackbar, toast, or log
+                            println("Verification failed: $it")
+                        }
+                    )
+                } else {
+                    println("Temp user is null. Cannot verify or save.")
                 }
             },
             modifier = Modifier
@@ -99,6 +112,7 @@ fun VerifyOtpScreen(
         ) {
             Text("Verify", color = Color.White)
         }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 

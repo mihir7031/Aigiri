@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
+import com.example.aigiri.ui.components.isValidPassword
+import com.example.aigiri.ui.components.passwordWarning
 import com.example.aigiri.viewmodel.SendOtpUiState
 import com.example.aigiri.viewmodel.SignupViewModel
 @Composable
@@ -87,16 +89,10 @@ fun SignUpScreen(
             shape = RoundedCornerShape(12.dp),
             isError = password.isNotEmpty() && !isPasswordValid
         )
-        if (password.isNotEmpty() && !isPasswordValid) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                if (password.length < 8) Text("Password must be at least 8 characters", color = Color.Red, fontSize = 12.sp)
-                if (!password.any { it.isUpperCase() }) Text("At least one uppercase letter", color = Color.Red, fontSize = 12.sp)
-                if (!password.any { it.isLowerCase() }) Text("At least one lowercase letter", color = Color.Red, fontSize = 12.sp)
-                if (!password.any { it.isDigit() }) Text("At least one digit", color = Color.Red, fontSize = 12.sp)
-                if (!password.any { "!@#\$%^&*()_+=-{}[]|:;\"'<>,.?/".contains(it) }) Text("At least one special character", color = Color.Red, fontSize = 12.sp)
-            }
+        val warningMessage = passwordWarning(password)
+        if (warningMessage.isNotEmpty()) {
+            Text(warningMessage, color = Color.Red, fontSize = 12.sp)
         }
-
         Spacer(modifier = Modifier.height(8.dp))
 
         // Confirm Password
@@ -160,7 +156,8 @@ fun SignUpScreen(
         // Submit Button
         Button(
             onClick = {
-                viewModel.sendOtp(phoneNumber) },
+                viewModel.sendOtp(username, password, phoneNumber, email.takeIf { it.isNotBlank() })
+            },
             enabled = isFormValid && !isLoading,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -185,13 +182,6 @@ fun SignUpScreen(
 
 
 
-fun isValidPassword(password: String): Boolean {
-    return password.length >= 8 &&
-            password.any { it.isUpperCase() } &&
-            password.any { it.isLowerCase() } &&
-            password.any { it.isDigit() } &&
-            password.any { "!@#\$%^&*()_+=-{}[]|:;\"'<>,.?/".contains(it) }
-}
 
 
 

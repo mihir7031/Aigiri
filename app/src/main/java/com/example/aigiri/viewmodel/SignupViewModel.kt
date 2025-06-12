@@ -3,7 +3,7 @@ package com.example.aigiri.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.aigiri.model.OtpRequest
+
 import com.example.aigiri.model.User
 import com.example.aigiri.repository.OtpRepository
 import com.example.aigiri.repository.UserRepository
@@ -28,9 +28,18 @@ class SignupViewModel(
     private val _uiState = MutableStateFlow<SendOtpUiState>(SendOtpUiState.Idle)
     val uiState: StateFlow<SendOtpUiState> = _uiState
     private var tempUser: User? = null
+        private set
+
+    fun setTempUser(user: User) {
+        tempUser = user
+    }
+
+    fun getTempUser(): User? = tempUser
     val usernameTaken = MutableStateFlow(false)
     val emailTaken = MutableStateFlow(false)
     val phoneTaken = MutableStateFlow(false)
+
+
 
     private fun generateOtp(): String = (100000..999999).random().toString()
 
@@ -71,14 +80,11 @@ class SignupViewModel(
             }
         }
     }
-
-    fun sendOtp(phoneNumber: String) {
-        val isValid = phoneNumber.startsWith("+") && phoneNumber.length == 13 && phoneNumber.drop(1)
-            .all { it.isDigit() }
+    fun sendOtp(username: String, password: String, phone: String, email: String?) {
+        val isValid = phone.startsWith("+") && phone.length == 13 && phone.drop(1).all { it.isDigit() }
 
         if (!isValid) {
-            _uiState.value =
-                SendOtpUiState.Error("Enter a valid phone number (e.g., +919876543210)")
+            _uiState.value = SendOtpUiState.Error("Enter a valid phone number")
             return
         }
 
@@ -87,16 +93,18 @@ class SignupViewModel(
 
         viewModelScope.launch {
             try {
-                val result = otpRepository.sendOtp(phoneNumber, otp)
+                val result = otpRepository.sendOtp(phone, otp)
                 if (result.isSuccess) {
-                    _uiState.value = SendOtpUiState.Success(phoneNumber, otp)
+                    // Hash the password
+                    val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+
+                    setTempUser(User(username, hashedPassword, phone, email))
+                    _uiState.value = SendOtpUiState.Success(phone, otp)
                 } else {
-                    // get error message from failure exception
-                    val errorMessage = result.exceptionOrNull()?.message ?: "Something went wrong"
-                    _uiState.value = SendOtpUiState.Error(errorMessage)
+                    _uiState.value = SendOtpUiState.Error(result.exceptionOrNull()?.message ?: "Failed to send OTP")
                 }
             } catch (e: Exception) {
-                _uiState.value = SendOtpUiState.Error(e.message ?: "Unknown error occurred")
+                _uiState.value = SendOtpUiState.Error(e.message ?: "Unknown error")
             }
         }
     }

@@ -168,6 +168,25 @@ class UserDao(private val db: FirebaseFirestore = FirebaseFirestore.getInstance(
             Result.failure(e)
         }
     }
+    suspend fun getPasswordByUsername(username: String): Result<String?> {
+        return try {
+            val snapshot = usersCollection
+                .whereEqualTo("username", username)
+                .limit(1)
+                .get()
+                .await()
+
+            val password = if (snapshot.documents.isNotEmpty()) {
+                snapshot.documents[0].getString("password")
+            } else {
+                null
+            }
+
+            Result.success(password)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
 
 }

@@ -1,4 +1,4 @@
-package com.example.aigiri.ui.screens
+package com.example.aigiri.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable

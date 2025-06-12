@@ -2,7 +2,9 @@ package com.example.aigiri.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aigiri.model.User
 import com.example.aigiri.repository.OtpRepository
+import com.example.aigiri.repository.UserRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -16,14 +18,18 @@ data class OtpUiState(
 
 class VerifyOtpViewModel(
     private val otpRepository: OtpRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OtpUiState())
     val uiState: StateFlow<OtpUiState> = _uiState.asStateFlow()
 
-    init {
-        startTimer()
+    private var tempUser: User? = null
+
+    fun setTempUser(user: User?) {
+        tempUser = user
     }
+
 
     fun updateOtp(index: Int, value: String) {
         val newOtp = _uiState.value.otpInput.toMutableList()
@@ -33,6 +39,7 @@ class VerifyOtpViewModel(
 
     fun setVerificationId(id: String) {
         _uiState.update { it.copy(verificationId = id) }
+        startTimer()
     }
 
     private fun startTimer() {
@@ -44,12 +51,29 @@ class VerifyOtpViewModel(
         }
     }
 
-    fun verifyOtp(navToNext: () -> Unit) {
+    fun verifyOtp(onSuccess: () -> Unit, onError: (String) -> Unit) {
         val enteredOtp = _uiState.value.otpInput.joinToString("")
         if (enteredOtp == _uiState.value.verificationId) {
-            navToNext()
+            val user = tempUser
+            if (user == null) {
+                _uiState.update { it.copy(error = "User data missing") }
+                onError("User data missing")
+                return
+            }
+
+            viewModelScope.launch {
+                val result = userRepository.saveUser(user)
+                if (result.isSuccess) {
+                    onSuccess()
+                } else {
+                    val msg = result.exceptionOrNull()?.message ?: "Failed to save user"
+                    _uiState.update { it.copy(error = msg) }
+                    onError(msg)
+                }
+            }
         } else {
             _uiState.update { it.copy(error = "Incorrect OTP") }
+            onError("Incorrect OTP")
         }
     }
 

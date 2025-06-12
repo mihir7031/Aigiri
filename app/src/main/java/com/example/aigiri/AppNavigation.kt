@@ -23,7 +23,7 @@ fun AppNavigation(startDestination: String) {
         SignupViewModel(AppContainer.otpRepository, userRepository = UserRepository())
     }
     val verifyOtpViewModel = remember {
-        VerifyOtpViewModel(AppContainer.otpRepository)
+        VerifyOtpViewModel(AppContainer.otpRepository, userRepository = UserRepository())
     }
     val loginViewModel = remember {
         LoginViewModel(TokenManager(context), context)
@@ -75,6 +75,9 @@ fun AppNavigation(startDestination: String) {
         {
          HistoryScreen()
         }
+//        composable("rest_password") {
+//            ResetPasswordScreen(navController = navController)
+//        }
     }
 }
 

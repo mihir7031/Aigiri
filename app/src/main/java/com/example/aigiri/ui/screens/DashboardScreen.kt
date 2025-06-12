@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.aigiri.TokenManager
+import com.example.aigiri.ui.components.BottomNavBar
+import com.example.aigiri.ui.components.TopNavBar
 import com.example.aigiri.viewmodel.DashboardViewModel
 
 
