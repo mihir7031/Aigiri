@@ -1,6 +1,6 @@
 package com.example.aigiri.ui.components
 
-import org.mindrot.jbcrypt.BCrypt
+//import org.mindrot.jbcrypt.BCrypt
 
 
 fun isValidPassword(password: String): Boolean {
@@ -13,9 +13,7 @@ fun isValidPassword(password: String): Boolean {
 
 fun passwordWarning(password: String): String {
     if (password.isNotBlank() && !isValidPassword(password)) {
-        if (password.length < 8) {
-            return "Password must be at least 8 characters"
-        }
+
         if (!password.any { it.isUpperCase() }) {
             return "At least one uppercase letter"
         }
@@ -28,10 +26,13 @@ fun passwordWarning(password: String): String {
         if (!password.any { "!@#\$%^&*()_+=-{}[]|:;\"'<>,.?/".contains(it) }) {
             return "At least one special character"
         }
+        if (password.length < 8) {
+            return "Password must be at least 8 characters"
+        }
     }
     return ""
 }
-fun isSamePassword(oldHashedPassword: String, newPassword: String): Boolean {
-    return BCrypt.checkpw(newPassword, oldHashedPassword)
-}
+//fun isSamePassword(oldHashedPassword: String, newPassword: String): Boolean {
+//    return BCrypt.checkpw(newPassword, oldHashedPassword)
+//}
 

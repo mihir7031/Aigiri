@@ -38,6 +38,8 @@ app.post("/login", async (req, res) => {
         const validPassword = await bcrypt.compare(password, userData.password);
 
         if (!validPassword) {
+            console.log("Received password:", JSON.stringify(password));
+            console.log("Hash from Firestore:", userData.password);
             return res.status(401).json({ error: password });
         }
 

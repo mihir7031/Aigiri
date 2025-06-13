@@ -3,6 +3,7 @@ package com.example.aigiri.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.favre.lib.crypto.bcrypt.BCrypt
 
 import com.example.aigiri.model.User
 import com.example.aigiri.repository.OtpRepository
@@ -10,7 +11,7 @@ import com.example.aigiri.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.mindrot.jbcrypt.BCrypt
+
 
 
 sealed class SendOtpUiState {
@@ -96,9 +97,9 @@ class SignupViewModel(
                 val result = otpRepository.sendOtp(phone, otp)
                 if (result.isSuccess) {
                     // Hash the password
-                    val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+                    val hashedPassword = BCrypt.withDefaults().hashToString(10, password.toCharArray())
 
-                    setTempUser(User(username, hashedPassword, phone, email))
+                    setTempUser(User(username, phone,hashedPassword, email))
                     _uiState.value = SendOtpUiState.Success(phone, otp)
                 } else {
                     _uiState.value = SendOtpUiState.Error(result.exceptionOrNull()?.message ?: "Failed to send OTP")

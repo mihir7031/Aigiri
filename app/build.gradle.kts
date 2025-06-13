@@ -111,7 +111,7 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
     implementation ("androidx.compose.material:material-icons-extended:1.6.0")
 
-    implementation ("org.mindrot:jbcrypt:0.4")
+    implementation("at.favre.lib:bcrypt:0.9.0")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
 

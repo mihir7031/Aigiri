@@ -91,10 +91,13 @@ fun VerifyOtpScreen(
                     viewModel.setTempUser(tempUser) // Set user before verifying
                     viewModel.verifyOtp(
                         onSuccess = {
-                            navController.navigate("profile_setup/$phoneNumber") {
+//                            navController.navigate("profile_setup/$phoneNumber") {
+//                                popUpTo("splash") { inclusive = true }
+//                            }
+                            navController.navigate("forgot_password")
+                            {
                                 popUpTo("splash") { inclusive = true }
-                            }
-                        },
+                            }},
                         onError = {
                             // Optional: Show snackbar, toast, or log
                             println("Verification failed: $it")
