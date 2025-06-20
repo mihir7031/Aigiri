@@ -35,7 +35,7 @@ class DashboardViewModel(private val tokenManager: TokenManager) : ViewModel() {
     }
     fun logout() {
         viewModelScope.launch {
-            tokenManager.clearToken()
+            tokenManager.clear()
             _loggedOut.value = true
         }
     }

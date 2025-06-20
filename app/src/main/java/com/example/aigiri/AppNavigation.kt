@@ -3,12 +3,15 @@ package com.example.aigiri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+
 import com.example.aigiri.repository.UserRepository
 import com.example.aigiri.ui.screens.*
 import com.example.aigiri.viewmodel.*
@@ -31,6 +34,12 @@ fun AppNavigation(startDestination: String) {
     val DashboardViewModel= remember {
         DashboardViewModel(TokenManager(context))
     }
+//    val EmergencyContactsViewModel= remember {
+//        EmergencyContactsViewModel(repository = EmergencyContactsRepository())
+//    }
+    val permissionViewModel: PermissionViewModel = viewModel(
+        factory = ViewModelProvider.AndroidViewModelFactory(LocalContext.current.applicationContext as android.app.Application)
+    )
     NavHost(navController = navController, startDestination = startDestination) {
         composable("splash") {
             SplashScreen(onSplashComplete = {
@@ -75,9 +84,12 @@ fun AppNavigation(startDestination: String) {
         {
          HistoryScreen()
         }
-//        composable("rest_password") {
-//            ResetPasswordScreen(navController = navController)
+//        composable("emergencycontact"){
+//            EmergencyContactsScreen(navController=navController, viewModel=EmergencyContactsViewModel)
 //        }
+        composable("permission"){
+            GrantPermissionScreen(navController=navController, viewModel =permissionViewModel )
+        }
     }
 }
 

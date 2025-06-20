@@ -35,7 +35,7 @@ class LoginViewModel(
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {
-                        tokenManager.saveToken(body.token)
+                        tokenManager.saveTokenAndUserId(body.token, body.userId)
                         _loginState.value = LoginUiState.Success(body.userId)
                     } else {
                         _loginState.value = LoginUiState.Error("Empty response")
@@ -49,6 +49,7 @@ class LoginViewModel(
             }
         }
     }
+
 
     fun resetState() {
         _loginState.value = LoginUiState.Idle
