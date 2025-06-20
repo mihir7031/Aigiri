@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.aigiri.repository.EmergencyContactsRepository
 
 import com.example.aigiri.repository.UserRepository
 import com.example.aigiri.ui.screens.*
@@ -34,9 +35,9 @@ fun AppNavigation(startDestination: String) {
     val DashboardViewModel= remember {
         DashboardViewModel(TokenManager(context))
     }
-//    val EmergencyContactsViewModel= remember {
-//        EmergencyContactsViewModel(repository = EmergencyContactsRepository())
-//    }
+    val EmergencyContactsViewModel= remember {
+        EmergencyContactsViewModel(repository = EmergencyContactsRepository(), tokenManager = TokenManager(context))
+    }
     val permissionViewModel: PermissionViewModel = viewModel(
         factory = ViewModelProvider.AndroidViewModelFactory(LocalContext.current.applicationContext as android.app.Application)
     )
@@ -84,9 +85,9 @@ fun AppNavigation(startDestination: String) {
         {
          HistoryScreen()
         }
-//        composable("emergencycontact"){
-//            EmergencyContactsScreen(navController=navController, viewModel=EmergencyContactsViewModel)
-//        }
+        composable("emergencycontact"){
+            EmergencyContactsScreen(navController=navController, viewModel=EmergencyContactsViewModel)
+        }
         composable("permission"){
             GrantPermissionScreen(navController=navController, viewModel =permissionViewModel )
         }

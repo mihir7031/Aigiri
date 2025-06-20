@@ -12,13 +12,7 @@ class UserRepository(private val userDao: UserDao = UserDao()) {
 
 
 
-    suspend fun updateEmergencyContact(
-        userUid: String,
-        contactDocId: String,
-        updatedFields: Map<String, Any>
-    ): Result<Unit> {
-        return userDao.updateEmergencyContact(userUid, contactDocId, updatedFields)
-    }
+
 
     suspend fun isPhoneTaken(phoneNo: String): Result<Boolean> {
         return userDao.isPhoneTaken(phoneNo)
