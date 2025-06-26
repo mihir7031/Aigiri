@@ -1,4 +1,4 @@
-# Aigiri – Your Legal & Safety Companion
+# Aigiri – Aigiri – Safety in Your Hands, Strength in Your Voice.
 
 **Aigiri** is a mobile application designed to empower women by providing smart, real-time tools for personal safety, legal complaint generation, and evidence protection — all wrapped in an intuitive, secure, and culturally relevant experience.
 
