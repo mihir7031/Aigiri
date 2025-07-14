@@ -1,15 +1,7 @@
 package com.example.aigiri.model
-
 data class EmergencyContact(
-    val name: String = "",
-    val phoneNumber: String = "",
-    val priority: Int = 0
-) {
-    fun toMap(): Map<String, Any> {
-        return mapOf(
-            "name" to name,
-            "phoneNumber" to phoneNumber,
-            "priority" to priority
-        )
-    }
-}
+    var id: String = "",           // Firestore doc ID (optional initially)
+    var name: String = "",
+    var phoneNumber: String = "",
+    var priority: Int = 0          // Used for sorting contacts
+)

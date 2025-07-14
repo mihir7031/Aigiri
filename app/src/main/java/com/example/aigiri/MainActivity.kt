@@ -3,6 +3,7 @@ package com.example.aigiri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.aigiri.navigation.RootApp
 
 
 class MainActivity : ComponentActivity() {

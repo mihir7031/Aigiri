@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.aigiri.model.User
 import com.example.aigiri.repository.OtpRepository
 import com.example.aigiri.repository.UserRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,10 +26,13 @@ class VerifyOtpViewModel(
     val uiState: StateFlow<OtpUiState> = _uiState.asStateFlow()
 
     private var tempUser: User? = null
+    private var timerJob: Job? = null
 
-    fun setTempUser(user: User?) {
+    fun setTempUser(user: User) {
         tempUser = user
     }
+
+    fun getTempUser(): User? = tempUser
 
 
     fun updateOtp(index: Int, value: String) {
@@ -38,17 +42,26 @@ class VerifyOtpViewModel(
     }
 
     fun setVerificationId(id: String) {
-        _uiState.update { it.copy(verificationId = id) }
+        _uiState.update { it.copy(verificationId = id, timeLeft = 60) } // Reset timeLeft too
         startTimer()
     }
 
     private fun startTimer() {
-        viewModelScope.launch {
+        timerJob?.cancel() // Cancel any existing timer
+        timerJob = viewModelScope.launch {
             while (_uiState.value.timeLeft > 0) {
                 delay(1000)
                 _uiState.update { it.copy(timeLeft = it.timeLeft - 1) }
             }
         }
+    }
+    fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    fun invalidateOtp() {
+        _uiState.update { it.copy(verificationId = "", otpInput = List(6) { "" }) }
     }
 
     fun verifyOtp(onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -64,6 +77,7 @@ class VerifyOtpViewModel(
             viewModelScope.launch {
                 val result = userRepository.saveUser(user)
                 if (result.isSuccess) {
+                    stopTimer()
                     onSuccess()
                 } else {
                     val msg = result.exceptionOrNull()?.message ?: "Failed to save user"

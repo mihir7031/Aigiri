@@ -1,6 +1,9 @@
 package com.example.aigiri.viewmodel
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.favre.lib.crypto.bcrypt.BCrypt
@@ -34,6 +37,14 @@ class SignupViewModel(
     fun setTempUser(user: User) {
         tempUser = user
     }
+    fun resetState(clearTempUser: Boolean = true) {
+        _uiState.value = SendOtpUiState.Idle
+        usernameTaken.value = false
+        emailTaken.value = false
+        phoneTaken.value = false
+        if (clearTempUser) tempUser = null
+    }
+
 
     fun getTempUser(): User? = tempUser
     val usernameTaken = MutableStateFlow(false)
@@ -112,7 +123,6 @@ class SignupViewModel(
 
 
 }
-
 
 
 

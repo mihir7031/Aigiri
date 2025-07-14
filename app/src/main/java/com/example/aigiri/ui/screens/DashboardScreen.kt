@@ -18,18 +18,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.aigiri.TokenManager
+import com.example.aigiri.network.TokenManager
 import com.example.aigiri.ui.components.BottomNavBar
+import com.example.aigiri.ui.components.LiveButton
 import com.example.aigiri.ui.components.TopNavBar
 import com.example.aigiri.viewmodel.DashboardViewModel
-
+import com.example.aigiri.viewmodel.LiveViewModel
 
 
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     navController: NavHostController,
-    tokenManager: TokenManager
+    tokenManager: TokenManager,
+    liveViewModel: LiveViewModel
 ) {
     val primaryPurple = Color(0xFF6A1B9A)
     val lightPurple = Color(0xFFF1E6FF)
@@ -46,7 +48,9 @@ fun DashboardScreen(
             primaryPurple = primaryPurple,
             lightPurple = lightPurple,
             onReportClick = { viewModel.onReportClick(navController) },
-            onSafeWalkClick = { viewModel.onSafeWalkClick(navController) }
+            onSafeWalkClick = { viewModel.onSafeWalkClick(navController) },
+            liveViewModel = liveViewModel,
+            navController = navController
         )
     }
 }
@@ -57,7 +61,9 @@ fun DashboardContent(
     primaryPurple: Color,
     lightPurple: Color,
     onReportClick: () -> Unit,
-    onSafeWalkClick: () -> Unit
+    onSafeWalkClick: () -> Unit,
+    liveViewModel: LiveViewModel,
+    navController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -124,6 +130,10 @@ fun DashboardContent(
             backgroundColor = lightPurple,
             onButtonClick = onSafeWalkClick
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+//        LiveButton(viewModel = liveViewModel,navController)
+
     }
 }
 

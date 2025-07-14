@@ -1,6 +1,6 @@
 package com.example.aigiri.repository
 import android.content.Context
-import com.example.aigiri.RetrofitInstance
+import com.example.aigiri.network.RetrofitInstance
 import com.example.aigiri.model.LoginRequest
 import com.example.aigiri.model.LoginResponse
 import retrofit2.Response

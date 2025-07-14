@@ -47,7 +47,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Your safety, your voice",
+            text = "Safety in Your Hands, Strength in Your Voice",
             fontSize = 16.sp,
             color = Color.Gray
         )

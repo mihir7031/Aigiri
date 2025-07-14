@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aigiri.viewmodel.DashboardViewModel
 import com.example.aigiri.R
-import com.example.aigiri.TokenManager
+import com.example.aigiri.network.TokenManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

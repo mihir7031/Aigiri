@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
@@ -26,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
@@ -33,10 +34,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aigiri.model.EmergencyContact
 import kotlin.math.roundToInt
+
 
 @Composable
 fun ContactItem(
@@ -46,6 +49,7 @@ fun ContactItem(
     modifier: Modifier = Modifier,
     dragHandle: Modifier = Modifier
 ) {
+    // Shake effect when NOT dragging (example)
     val shouldShake = !isDragging
     val shakeTarget by rememberUpdatedState(if (shouldShake) 4f else 0f)
 
@@ -65,8 +69,10 @@ fun ContactItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isDragging) Color.White.copy(alpha = 0.9f) else Color.White),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) Color.White.copy(alpha = 0.9f) else Color.White
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isDragging) 8.dp else 2.dp)
     ) {
         Row(
@@ -80,6 +86,8 @@ fun ContactItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
+                // Commenting out drag handle for now
+                /*
                 Icon(
                     imageVector = Icons.Default.List,
                     contentDescription = "Drag Handle",
@@ -89,6 +97,10 @@ fun ContactItem(
                         .offset { IntOffset(shakeOffset.roundToInt(), 0) }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
+                */
+                // Just put spacer in place of drag handle so layout stays consistent
+                Spacer(modifier = Modifier.width(32.dp))
+
                 Column {
                     Text(
                         text = "Priority ${contact.priority}: ${contact.name}",
@@ -103,10 +115,8 @@ fun ContactItem(
                 }
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Delete", tint = Color.Red)
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
             }
         }
     }
 }
-
-

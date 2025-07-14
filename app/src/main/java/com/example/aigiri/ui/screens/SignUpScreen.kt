@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.example.aigiri.ui.components.isValidPassword
 import com.example.aigiri.ui.components.passwordWarning
@@ -45,9 +46,37 @@ fun SignUpScreen(
     LaunchedEffect(state) {
         if (state is SendOtpUiState.Success) {
             val successState = state as SendOtpUiState.Success
-            navController.navigate("verify_otp/${successState.phoneNumber}/${successState.otp}")
+//            didInit.value = false
+            navController.navigate("verify_otp/${successState.phoneNumber}/${successState.otp}") {
+
+                launchSingleTop = true
+            }
         }
     }
+
+
+    val didInit = rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit) {
+        if (!didInit.value) {
+            viewModel.getTempUser()?.let { user ->
+                username = user.username
+                email = user.email ?: ""
+                phoneNumber = user.phoneNo
+            } ?: run {
+                viewModel.resetState()
+                username = ""
+                password = ""
+                confirmPassword = ""
+                email = ""
+                phoneNumber = "+91"
+            }
+            didInit.value = true
+        }
+    }
+
+
+
 
     Column(
         modifier = Modifier
@@ -179,7 +208,6 @@ fun SignUpScreen(
         }
     }
 }
-
 
 
 

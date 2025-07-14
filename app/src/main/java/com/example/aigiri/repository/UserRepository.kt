@@ -11,9 +11,6 @@ class UserRepository(private val userDao: UserDao = UserDao()) {
     }
 
 
-
-
-
     suspend fun isPhoneTaken(phoneNo: String): Result<Boolean> {
         return userDao.isPhoneTaken(phoneNo)
     }

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.aigiri.TokenManager
+import com.example.aigiri.network.TokenManager
 import com.example.aigiri.viewmodel.LoginUiState
 import com.example.aigiri.viewmodel.LoginViewModel
 
@@ -128,13 +128,27 @@ fun LoginScreen(
         val token by tokenManager.tokenFlow.collectAsState(initial = null)
 
         LaunchedEffect(loginState, token) {
-            if (loginState is LoginUiState.Success && token != null) {
-                navController.navigate("dashboard") {
-                    popUpTo("login") { inclusive = true }
+            when (loginState) {
+                is LoginUiState.Success -> {
+                    if (token != null) {
+                        navController.navigate("dashboard") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                        viewModel.resetState()
+                    }
                 }
-                viewModel.resetState()
+
+                is LoginUiState.NavigateToEmergencyContact -> {
+                    navController.navigate("add_contacts") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                    viewModel.resetState()
+                }
+
+                else -> Unit
             }
         }
+
 
 
         Spacer(modifier = Modifier.height(16.dp))

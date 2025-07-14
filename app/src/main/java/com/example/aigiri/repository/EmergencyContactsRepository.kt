@@ -5,7 +5,7 @@ import com.example.aigiri.model.EmergencyContact
 
 class EmergencyContactsRepository(
     private val contactDao: EmergencyContactDao = EmergencyContactDao()
-){
+) {
     suspend fun addEmergencyContact(userUid: String, contact: EmergencyContact): Result<Unit> {
         return contactDao.addEmergencyContact(userUid, contact)
     }
@@ -17,6 +17,7 @@ class EmergencyContactsRepository(
     suspend fun deleteEmergencyContact(userUid: String, contactDocId: String): Result<Unit> {
         return contactDao.deleteEmergencyContact(userUid, contactDocId)
     }
+
     suspend fun updateEmergencyContact(
         userUid: String,
         contactDocId: String,
@@ -24,4 +25,6 @@ class EmergencyContactsRepository(
     ): Result<Unit> {
         return contactDao.updateEmergencyContact(userUid, contactDocId, updatedFields)
     }
+
+
 }

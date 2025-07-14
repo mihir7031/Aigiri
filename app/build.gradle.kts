@@ -110,12 +110,22 @@ dependencies {
     // Optional: If you're using Kotlin coroutines with Firebase
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
     implementation ("androidx.compose.material:material-icons-extended:1.6.0")
-
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("io.livekit:livekit-android:2.18.1")
+    implementation ("io.livekit:livekit-android-camerax:2.+")
+    implementation ("io.livekit:livekit-android-compose-components:1.+")
+//    // ✅ Correct artifact from Maven Central
+//    implementation("com.twilio:audioswitch:1.1.4")
 
+    implementation("com.infobip:google-webrtc:1.0.43577") {
+        exclude(group = "org.webrtc", module = "webrtc")
+    }
 
-    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
+//    configurations.all {
+//        exclude(group = "com.github.webrtc-sdk", module = "android")
+//    }
 
 
 

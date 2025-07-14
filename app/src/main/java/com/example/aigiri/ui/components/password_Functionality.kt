@@ -32,7 +32,5 @@ fun passwordWarning(password: String): String {
     }
     return ""
 }
-//fun isSamePassword(oldHashedPassword: String, newPassword: String): Boolean {
-//    return BCrypt.checkpw(newPassword, oldHashedPassword)
-//}
+
 

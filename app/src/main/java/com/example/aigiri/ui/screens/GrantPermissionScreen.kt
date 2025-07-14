@@ -11,8 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +20,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.aigiri.viewmodel.PermissionViewModel
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -30,8 +31,10 @@ fun GrantPermissionScreen(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    // Launchers for requesting permissions
+    // Permission launchers
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -69,99 +72,108 @@ fun GrantPermissionScreen(
         }
     }
 
-
-    // Collect permission states
+    // Observing permission states
     val locationPermissionGranted by viewModel.locationPermissionGranted.collectAsState()
     val cameraPermissionGranted by viewModel.cameraPermissionGranted.collectAsState()
     val microphonePermissionGranted by viewModel.microphonePermissionGranted.collectAsState()
     val contactsPermissionGranted by viewModel.contactsPermissionGranted.collectAsState()
     val notificationsPermissionGranted by viewModel.notificationsPermissionGranted.collectAsState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
+    //Added
+    //To-do backhandler going to login and clear the stack
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
         ) {
-            // Top Bar
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                }
                 Text(
                     text = "Grant Permissions",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(start = 8.dp)
+                    style = MaterialTheme.typography.headlineMedium
                 )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Required Permissions", style = MaterialTheme.typography.titleLarge)
+                Text("Required Permissions", style = MaterialTheme.typography.titleLarge)
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "To provide a seamless experience, we ask for these permissions upfront. " +
+                            "In urgent scenarios—like calls or location sharing—you won't have time to grant them. " +
+                            "Please enable them now to avoid interruptions later.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                )
 
-            PermissionItem(
-                title = "Location",
-                isGranted = locationPermissionGranted,
-                onRequestPermission = {
-                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                }
-            )
-
-            PermissionItem(
-                title = "Camera",
-                isGranted = cameraPermissionGranted,
-                onRequestPermission = {
-                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                }
-            )
-
-            PermissionItem(
-                title = "Microphone",
-                isGranted = microphonePermissionGranted,
-                onRequestPermission = {
-                    microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
-            )
-
-            PermissionItem(
-                title = "Contacts",
-                isGranted = contactsPermissionGranted,
-                onRequestPermission = {
-                    contactsPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
-                }
-            )
-
-            PermissionItem(
-                title = "Notifications",
-                isGranted = notificationsPermissionGranted,
-                onRequestPermission = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        notificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                PermissionItem(
+                    title = "Location",
+                    isGranted = locationPermissionGranted,
+                    onRequestPermission = {
+                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     }
-                }
-            )
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate("emergencycontact") {
-                        popUpTo(0) { inclusive = false }
+                PermissionItem(
+                    title = "Camera",
+                    isGranted = cameraPermissionGranted,
+                    onRequestPermission = {
+                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD4BEE6)),
-                enabled = viewModel.allPermissionsGranted()
-            ) {
-                Text("Finish", color = Color.White)
+                )
+
+                PermissionItem(
+                    title = "Microphone",
+                    isGranted = microphonePermissionGranted,
+                    onRequestPermission = {
+                        microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                )
+
+                PermissionItem(
+                    title = "Contacts",
+                    isGranted = contactsPermissionGranted,
+                    onRequestPermission = {
+                        contactsPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                    }
+                )
+
+                PermissionItem(
+                    title = "Notifications",
+                    isGranted = notificationsPermissionGranted,
+                    onRequestPermission = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Signup successful!",duration=SnackbarDuration.Indefinite)
+                        }
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = false }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD4BEE6)),
+                    enabled = viewModel.allPermissionsGranted()
+                ) {
+                    Text("Finish", color = Color.White)
+                }
             }
         }
     }
