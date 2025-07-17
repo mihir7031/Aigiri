@@ -59,7 +59,8 @@ class EmergencyContactsViewModel(
     fun promptDelete(contact: EmergencyContact) {
         contactToDelete = contact
         showDeleteDialog = true
-    }fun addContact(onSuccess: () -> Unit, onError: (String) -> Unit) {
+    }
+    fun addContact(onSuccess: () -> Unit, onError: (String) -> Unit) {
         nameError = null
         phoneError = null
 
@@ -76,6 +77,12 @@ class EmergencyContactsViewModel(
                 phoneError = "Must be 10 digits"
                 return
             }
+
+            contacts.any{it.phoneNumber==phoneNumber}->{
+                phoneError="The number is already Added "
+                return
+            }
+
         }
 
         viewModelScope.launch {

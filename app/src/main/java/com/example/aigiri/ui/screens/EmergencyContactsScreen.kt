@@ -24,7 +24,7 @@ import androidx.navigation.NavController
 import com.example.aigiri.ui.components.ContactItem
 import com.example.aigiri.viewmodel.EmergencyContactsViewModel
 import kotlinx.coroutines.launch
-// import org.burnoutcrew.reorderable.* // 🔒 Commented out to avoid crash
+
 
 @Composable
 fun EmergencyContactsScreen(
@@ -37,12 +37,6 @@ fun EmergencyContactsScreen(
 
     val contacts by remember { derivedStateOf { viewModel.contacts } }
 
-    // 🔒 Commented out reorderable state
-//    val reorderState = rememberReorderableLazyListState(
-//        onMove = { from, to ->
-//            viewModel.moveContact(from.index, to.index)
-//        }
-//    )
 
     LaunchedEffect(snackbarHostState) {
         snackbarHostState.showSnackbar("Contact added successfully!")
@@ -242,7 +236,7 @@ fun EmergencyContactsScreen(
                     scope.launch {
                         val hasContact = viewModel.isEmergencyContactAdded()
 //                        snackbarHostState.showSnackbar("check the list is empty or not")
-                        if (!hasContact) {
+                        if (hasContact) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar("Emergency contacts saved.")
                                         navController.navigate("dashboard") {

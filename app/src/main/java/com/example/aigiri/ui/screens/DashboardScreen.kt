@@ -23,7 +23,8 @@ import com.example.aigiri.ui.components.BottomNavBar
 import com.example.aigiri.ui.components.LiveButton
 import com.example.aigiri.ui.components.TopNavBar
 import com.example.aigiri.viewmodel.DashboardViewModel
-import com.example.aigiri.viewmodel.LiveViewModel
+import com.example.aigiri.viewmodel.LiveStreamViewModel
+
 
 
 @Composable
@@ -31,7 +32,7 @@ fun DashboardScreen(
     viewModel: DashboardViewModel,
     navController: NavHostController,
     tokenManager: TokenManager,
-    liveViewModel: LiveViewModel
+    liveStreamViewModel: LiveStreamViewModel
 ) {
     val primaryPurple = Color(0xFF6A1B9A)
     val lightPurple = Color(0xFFF1E6FF)
@@ -49,7 +50,7 @@ fun DashboardScreen(
             lightPurple = lightPurple,
             onReportClick = { viewModel.onReportClick(navController) },
             onSafeWalkClick = { viewModel.onSafeWalkClick(navController) },
-            liveViewModel = liveViewModel,
+            liveStreamViewModel = liveStreamViewModel,
             navController = navController
         )
     }
@@ -62,7 +63,7 @@ fun DashboardContent(
     lightPurple: Color,
     onReportClick: () -> Unit,
     onSafeWalkClick: () -> Unit,
-    liveViewModel: LiveViewModel,
+    liveStreamViewModel: LiveStreamViewModel,
     navController: NavHostController
 ) {
     Column(
@@ -132,7 +133,7 @@ fun DashboardContent(
         )
         Spacer(modifier = Modifier.height(2.dp))
 
-        LiveButton(viewModel = liveViewModel,navController)
+        LiveButton(viewModel = liveStreamViewModel,navController)
 
     }
 }

@@ -53,9 +53,9 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
             context.applicationContext as Application
         )
     )
-
+    val liveStreamViewModel=remember{LiveStreamViewModel(tokenManager = TokenManager(context =context))}
     val liveSessionRepository = LiveSessionRepository(liveSessionApi, tokenManager)
-    val liveViewModel = remember { LiveViewModel(liveSessionRepository) }
+
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("splash") {
@@ -104,7 +104,7 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
                 viewModel = dashboardViewModel,
                 navController = navController,
                 tokenManager = tokenManager,
-                liveViewModel = liveViewModel
+                liveStreamViewModel = liveStreamViewModel
             )
         }
 
@@ -121,24 +121,27 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
         }
 
         composable("LiveButton") {
-            LiveButton(liveViewModel,navController)
+            LiveButton(liveStreamViewModel,navController)
 
         }
         composable("permission")
         {
             GrantPermissionScreen(viewModel = permissionViewModel,navController=navController)
         }
-        composable("liveCall") {
-            val token = navController.previousBackStackEntry
-                ?.savedStateHandle?.get<String>("token")
-            val wsUrl = navController.previousBackStackEntry
-                ?.savedStateHandle?.get<String>("wsUrl")
-
-            if (token != null && wsUrl != null) {
-                LiveCallScreen(token = token, wsUrl = wsUrl) {
-                    navController.popBackStack()
-                }
-            }
+//        composable("liveCall") {
+//            val token = navController.previousBackStackEntry
+//                ?.savedStateHandle?.get<String>("token")
+//            val wsUrl = navController.previousBackStackEntry
+//                ?.savedStateHandle?.get<String>("wsUrl")
+//
+//            if (token != null && wsUrl != null) {
+//                LiveCallScreen(token = token, wsUrl = wsUrl) {
+//                    navController.popBackStack()
+//                }
+//            }
+//        }
+        composable("livecall") {
+            LiveStreamScreen(liveStreamViewModel)
         }
 
 
