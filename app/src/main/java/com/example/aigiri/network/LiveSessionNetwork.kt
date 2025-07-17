@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NetworkClient {
-    private const val BASE_URL = "http://10.111.215.249:3001/" // Change this
+    private const val BASE_URL = "http://192.168.1.2:3001/" // Change this
 
     val liveSessionApi: LiveSessionApi by lazy {
         Retrofit.Builder()

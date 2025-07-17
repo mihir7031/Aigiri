@@ -32,4 +32,8 @@ class LiveViewModel(
             }
         }
     }
+    fun clearSession() {
+        _liveSession.value = null
+    }
+
 }

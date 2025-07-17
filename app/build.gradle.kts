@@ -122,7 +122,7 @@ dependencies {
     implementation("com.infobip:google-webrtc:1.0.43577") {
         exclude(group = "org.webrtc", module = "webrtc")
     }
-
+    implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
 //    configurations.all {
 //        exclude(group = "com.github.webrtc-sdk", module = "android")
 //    }

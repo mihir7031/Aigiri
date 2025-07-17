@@ -130,9 +130,9 @@ fun DashboardContent(
             backgroundColor = lightPurple,
             onButtonClick = onSafeWalkClick
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
-//        LiveButton(viewModel = liveViewModel,navController)
+        LiveButton(viewModel = liveViewModel,navController)
 
     }
 }

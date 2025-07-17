@@ -93,13 +93,19 @@ app.post("/start-session", async (req, res) => {
     const roomId = uuidv4();
     const timestamp = new Date().toISOString();
 
-    const accessToken = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
-      identity: `user-${userId}`,
-    });
-    accessToken.addGrant({ roomJoin: true, room: roomId });
-    const token = accessToken.toJwt();
+      const accessToken = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
+          identity: `user-${userId}`,
+      });
+      accessToken.addGrant({
+          roomJoin: true,
+          room: roomId,
+          canPublish: true,
+          canSubscribe: true,
+      });
 
-    const joinUrl = `${LIVEKIT_WS_URL}/?room=${roomId}&user=user-${userId}&token=${token}`;
+      const token = await accessToken.toJwt(); 
+
+      const joinUrl = `${LIVEKIT_WS_URL}/?room=${roomId}&user=user-${userId}&token=${token}`;
 
     const sessionData = {
       userId,
@@ -120,24 +126,24 @@ app.post("/start-session", async (req, res) => {
     const contacts = contactsSnapshot.docs.map(doc => doc.data());
 
     // Send SMS via Twilio
-    for (const contact of contacts) {
-      const smsMessage = ` Emergency Alert!\nJoin live session: ${joinUrl}`;
+    //for (const contact of contacts) {
+    //  const smsMessage = ` Emergency Alert!\nJoin live session: ${joinUrl}`;
 
-      try {
-        await twilioClient.messages.create({
-          body: smsMessage,
-          from: TWILIO_PHONE_NUMBER,
-          to: contact.phoneNo, // Make sure this is in E.164 format (e.g. +91xxxxxxxxxx)
-        });
+    //  try {
+    //    await twilioClient.messages.create({
+    //      body: smsMessage,
+    //      from: TWILIO_PHONE_NUMBER,
+    //        to: contact.phoneNumber, // Make sure this is in E.164 format (e.g. +91xxxxxxxxxx)
+    //    });
 
-        console.log(` SMS sent to ${contact.name} at ${contact.phoneNo}`);
-      } catch (smsErr) {
-        console.error(` Failed to send SMS to ${contact.phoneNo}:`, smsErr.message);
-      }
-    }
+    //    console.log(` SMS sent to ${contact.name} at ${contact.phoneNumber}`);
+    //  } catch (smsErr) {
+    //    console.error(` Failed to send SMS to ${contact.phoneNo}:`, smsErr.message);
+    //  }
+    //}
 
       const wsUrl = LIVEKIT_WS_URL; // Base websocket URL without params
-
+      console.log(token, docRef.id);
       return res.status(200).json({
           message: "Live session started and contacts alerted via SMS.",
           sessionId: docRef.id,

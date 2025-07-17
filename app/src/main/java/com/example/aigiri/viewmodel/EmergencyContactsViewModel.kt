@@ -25,7 +25,8 @@ class EmergencyContactsViewModel(
     var phoneNumber by mutableStateOf("")
     var nameError by mutableStateOf<String?>(null)
     var phoneError by mutableStateOf<String?>(null)
-
+    var maxPriority by mutableStateOf(0)
+        private set
     var contactToDelete by mutableStateOf<EmergencyContact?>(null)
     var showDeleteDialog by mutableStateOf(false)
 
@@ -43,7 +44,8 @@ class EmergencyContactsViewModel(
 
             val result = repository.getEmergencyContacts(userId)
             if (result.isSuccess) {
-                contacts = result.getOrNull().orEmpty()
+                contacts = result.getOrNull().orEmpty().sortedBy{it.priority}
+                maxPriority = contacts.maxOfOrNull { it.priority } ?: 0
             } else {
                 val errorMessage = result.exceptionOrNull()?.localizedMessage ?: "Unknown error occurred"
                 onError("Failed to load contacts: $errorMessage")
@@ -53,7 +55,11 @@ class EmergencyContactsViewModel(
 
 
 
-    fun addContact(onSuccess: () -> Unit, onError: (String) -> Unit) {
+
+    fun promptDelete(contact: EmergencyContact) {
+        contactToDelete = contact
+        showDeleteDialog = true
+    }fun addContact(onSuccess: () -> Unit, onError: (String) -> Unit) {
         nameError = null
         phoneError = null
 
@@ -79,8 +85,7 @@ class EmergencyContactsViewModel(
                 onError("User ID not found")
                 return@launch
             }
-            val newContact = EmergencyContact(name = contactName, phoneNumber = phoneNumber)
-
+            val newContact = EmergencyContact(name = contactName, phoneNumber = phoneNumber, priority = maxPriority+1)
             val result = repository.addEmergencyContact(userId, newContact)
             if (result.isSuccess) {
                 contactName = ""
@@ -93,25 +98,41 @@ class EmergencyContactsViewModel(
         }
     }
 
-    fun promptDelete(contact: EmergencyContact) {
-        contactToDelete = contact
-        showDeleteDialog = true
-    }
-
     fun confirmDelete(onError: (String) -> Unit) {
         val contact = contactToDelete ?: return
+
         viewModelScope.launch {
             val userId = tokenManager.getCachedUserId() ?: return@launch
             val result = repository.deleteEmergencyContact(userId, contact.id)
+
             if (result.isSuccess) {
-                showDeleteDialog = false
-                contactToDelete = null
-                loadContacts()
+                // Step 1: Shift priorities
+                val updatedList = contacts
+                    .filter { it.id != contact.id }
+                    .map {
+                        if (it.priority > contact.priority) {
+                            it.copy(priority = it.priority - 1)
+                        } else it
+                    }
+
+                // Step 2: Save updated priorities
+                saveAll(
+                    updatedContacts = updatedList,
+                    onSuccess = {
+                        showDeleteDialog = false
+                        contactToDelete = null
+                        loadContacts()
+                    },
+                    onError = { errorMsg ->
+                        onError("Contact deleted but failed to reorder priorities: $errorMsg")
+                    }
+                )
             } else {
                 onError("Failed to delete contact")
             }
         }
     }
+
 
     fun moveContact(fromIndex: Int, toIndex: Int) {
         if (fromIndex == toIndex) return
@@ -126,23 +147,29 @@ class EmergencyContactsViewModel(
         contacts = updatedList
     }
 
-    fun saveAll(onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun saveAll(updatedContacts: List<EmergencyContact>, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             val userId = tokenManager.getCachedUserId() ?: return@launch
             try {
-                contacts.forEach { contact ->
+                updatedContacts.forEach { contact ->
                     repository.updateEmergencyContact(
                         userUid = userId,
                         contactDocId = contact.id,
                         updatedFields = mapOf("priority" to contact.priority)
                     )
                 }
+
+                // Update local state
+                contacts = updatedContacts.sortedBy { it.priority }
+                maxPriority = contacts.maxOfOrNull { it.priority } ?: 0
+
                 onSuccess()
             } catch (e: Exception) {
                 onError(e.message ?: "Unknown error")
             }
         }
     }
+
     suspend fun isEmergencyContactAdded(): Boolean {
         val userId = tokenManager.getCachedUserId()
         if (userId.isNullOrBlank()) {

@@ -242,24 +242,16 @@ fun EmergencyContactsScreen(
                     scope.launch {
                         val hasContact = viewModel.isEmergencyContactAdded()
 //                        snackbarHostState.showSnackbar("check the list is empty or not")
-                        if (hasContact) {
-                            viewModel.saveAll(
-                                onSuccess = {
+                        if (!hasContact) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar("Emergency contacts saved.")
                                         navController.navigate("dashboard") {
                                             popUpTo(0) { inclusive = true }
                                         }
                                     }
-                                },
-                                onError = { msg ->
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Error: $msg")
-                                    }
-                                }
-                            )
+
                         } else {
-//                            snackbarHostState.showSnackbar("found that there is no emergency contact")
+                            snackbarHostState.showSnackbar("found that there is no emergency contact")
                             viewModel.showEmptyListDialog = true
                         }
                     }

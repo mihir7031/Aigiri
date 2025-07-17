@@ -1,6 +1,7 @@
 package com.example.aigiri.navigation
 
 import android.app.Application
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -18,6 +19,7 @@ import com.example.aigiri.ui.screens.*
 import com.example.aigiri.viewmodel.*
 import com.example.aigiri.repository.*
 import com.example.aigiri.ui.components.LiveButton
+
 import java.net.URLDecoder
 
 
@@ -126,19 +128,20 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
         {
             GrantPermissionScreen(viewModel = permissionViewModel,navController=navController)
         }
-        composable(
-            "liveCall/{token}/{wsUrl}",
-            arguments = listOf(
-                navArgument("token") { type = NavType.StringType },
-                navArgument("wsUrl") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val token = backStackEntry.arguments?.getString("token") ?: ""
-            val wsUrl = backStackEntry.arguments?.getString("wsUrl") ?: ""
-            LiveCallScreen(token, wsUrl) {
-                navController.popBackStack()
+        composable("liveCall") {
+            val token = navController.previousBackStackEntry
+                ?.savedStateHandle?.get<String>("token")
+            val wsUrl = navController.previousBackStackEntry
+                ?.savedStateHandle?.get<String>("wsUrl")
+
+            if (token != null && wsUrl != null) {
+                LiveCallScreen(token = token, wsUrl = wsUrl) {
+                    navController.popBackStack()
+                }
             }
         }
+
+
 
 
 
