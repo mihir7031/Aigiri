@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SettingsPower
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,10 +69,10 @@ fun TopNavBar(
         },
         actions = {
             IconButton(onClick = {
-                viewModel.logout() // Just clears token
+              navController.navigate("setting")
             }) {
                 Icon(
-                    imageVector = Icons.Filled.SettingsPower,
+                    imageVector = Icons.Filled.Settings,
                     contentDescription = "Logout",
                     tint = primaryPurple
                 )

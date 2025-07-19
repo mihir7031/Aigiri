@@ -54,7 +54,7 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
         )
     )
     val liveStreamViewModel=remember{LiveStreamViewModel(tokenManager = TokenManager(context =context))}
-    val liveSessionRepository = LiveSessionRepository(liveSessionApi, tokenManager)
+    val settingsViewModel= remember { SettingsViewModel(tokenManager = TokenManager(context)) }
 
 
     NavHost(navController = navController, startDestination = startDestination) {
@@ -141,7 +141,20 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
 //            }
 //        }
         composable("livecall") {
-            LiveStreamScreen(liveStreamViewModel)
+            LiveStreamScreen(liveStreamViewModel, navController = navController)
+        }
+        composable("setting") {
+            SettingsScreen(
+                navController = navController,
+                onBackClick = {
+                    navController.navigate("dashboard") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                viewModel = settingsViewModel
+            )
+
         }
 
 
