@@ -1,5 +1,7 @@
 package com.example.aigiri.ui.components
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -26,6 +28,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.aigiri.viewmodel.SOSViewModel
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.delay
 
 data class NavigationItem(val name: String, val icon: ImageVector, val route: String)
@@ -125,7 +129,13 @@ fun BottomNavBar(
 
 
 @Composable
-fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
+fun AnimatedSosButton(
+    navController: NavHostController,
+    modifier: Modifier,
+    viewModel: SOSViewModel,
+    context: Context,
+    userPhoneNumber: String
+) {
     val infiniteTransition = rememberInfiniteTransition()
     val pulseAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
@@ -136,21 +146,27 @@ fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
         )
     )
 
+    val fusedLocationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
+
     var isPressed by remember { mutableStateOf(false) }
     var navigate by remember { mutableStateOf(false) }
 
-    // Correct usage: perform side effect after state change
     LaunchedEffect(navigate) {
         if (navigate) {
-            delay(200)
-            isPressed = false
-            navController.navigate("add_contacts") {
-                popUpTo(navController.graph.startDestinationId) {
-                    saveState = true
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    viewModel.sendSOS(
+                        userPhoneNumber = userPhoneNumber,
+                        lat = location.latitude,
+                        lon = location.longitude
+                    )
+                } else {
+                    Toast.makeText(context, "❌ Failed to get location", Toast.LENGTH_SHORT).show()
                 }
-                launchSingleTop = true
-                restoreState = true
             }
+            isPressed = false
             navigate = false
         }
     }
@@ -172,7 +188,7 @@ fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
         FloatingActionButton(
             onClick = {
                 isPressed = true
-                navigate = true // Triggers LaunchedEffect
+                navigate = true
             },
             containerColor = buttonColor,
             contentColor = Color.White,
@@ -189,6 +205,3 @@ fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
         }
     }
 }
-
-
-

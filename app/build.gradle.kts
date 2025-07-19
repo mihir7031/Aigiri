@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.appcompat)
+    implementation(libs.play.services.location)
 
 
     // Test dependencies
