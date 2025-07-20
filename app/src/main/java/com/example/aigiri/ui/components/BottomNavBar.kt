@@ -223,7 +223,7 @@ fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
             }
 
             isPressed = false
-=======
+
     var isPressed by remember { mutableStateOf(false) }
     var navigate by remember { mutableStateOf(false) }
 
@@ -262,11 +262,11 @@ fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
         FloatingActionButton(
             onClick = {
                 isPressed = true
-<<<<<<< HEAD
+
                 navigate = true
-=======
+
                 navigate = true // Triggers LaunchedEffect
->>>>>>> recovered-work
+
             },
             containerColor = buttonColor,
             contentColor = Color.White,
@@ -283,15 +283,4 @@ fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
         }
     }
 }
-<<<<<<< HEAD
-=======
 
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun BottomNavBarPreview() {
-    val navController = rememberNavController()
-    BottomNavBar(navController = navController)
-}
->>>>>>> recovered-work
