@@ -10,7 +10,7 @@ class UserRepository(private val userDao: UserDao = UserDao()) {
         return userDao.saveUser(user)
     }
     suspend fun fetchPhoneNoByuserID(UID:String):String{
-      return userDao.getUserById(UID).getOrNull()?.phoneNo?:""
+      return userDao.getUserById(UID).getOrNull()?.phoneNo?:"+919978920881"
 
     }
 

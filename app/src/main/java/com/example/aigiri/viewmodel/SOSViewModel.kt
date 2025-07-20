@@ -1,5 +1,6 @@
 package com.example.aigiri.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,13 +30,15 @@ class SOSViewModel(
                 return@launch
             }
             val userPhoneNumber: String = userRepository.fetchPhoneNoByuserID(uid)
-            val message = "🚨 SOS! I'm in danger.\nPhone: $userPhoneNumber\nLocation: ($lat, $lon)"
+            val message = "🚨 SOS! I'm in danger.\nPhone: $userPhoneNumber\nLocation: https://www.google.com/maps?q=${lat},${lon}"
 
 
             if (repository.isInternetAvailable()) {
                 val result = repository.sendSOSOnline(
                     SOSRequest(uid, message)
+
                 )
+                Log.e("SOS","Internet aviable go for SendSOS")
                 _sosStatus.postValue(result)
             } else {
                 val contactsResult = emergencyRepository.getEmergencyContacts(uid)

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.aigiri.model.ChatMessage
 
 
@@ -19,7 +20,6 @@ import com.example.aigiri.model.ChatMessage
 fun ChatBubble(message: ChatMessage) {
     val isUser = message.sender == "User"
     val backgroundColor = if (isUser) Color(0xFFD8F6CD) else Color(0xFFE0E0E0)
-    val alignment = if (isUser) Alignment.End else Alignment.Start
 
     Row(
         modifier = Modifier
@@ -33,11 +33,17 @@ fun ChatBubble(message: ChatMessage) {
                 .padding(12.dp)
                 .widthIn(max = 280.dp)
         ) {
-            Text(message.message)
+            Text(
+                text = message.message,
+                color = Color.Black,
+                fontSize = 16.sp
+            )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                message.time,
+                text = message.time,
                 style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.End)
             )
         }

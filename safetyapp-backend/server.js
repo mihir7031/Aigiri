@@ -214,25 +214,28 @@ app.get("/profile", async (req, res) => {
 });
 
 app.post("/send-sos", async (req, res) => {
+       console.log("IN Send SOS")
     try {
         const { userId, message } = req.body;
 
         if (!userId || !message) {
+            console.log("Empty")
             return res.status(400).json({ error: "Missing userId or message" });
         }
 
         // Fetch emergency contacts from Firestore subcollection
         const contactsSnapshot = await db
-            .collection("users")
+            .collection("User")
             .doc(userId)
             .collection("emergency_contacts")
             .orderBy("priority", "asc") // Optional: sort by priority
             .get();
 
         if (contactsSnapshot.empty) {
+            console.log("empty")
             return res.status(404).json({ error: "No emergency contacts found" });
         }
-
+        console.log("Enter in SOS")
         const phoneNumbers = contactsSnapshot.docs.map(doc => doc.data().phoneNumber);
 
         // Send SOS message to each contact

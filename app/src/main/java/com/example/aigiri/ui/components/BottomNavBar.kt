@@ -2,6 +2,7 @@ package com.example.aigiri.ui.components
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -150,9 +151,8 @@ fun AnimatedSosButton(
         )
     )
 
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
 
     var isPressed by remember { mutableStateOf(false) }
     var navigate by remember { mutableStateOf(false) }
@@ -172,6 +172,7 @@ fun AnimatedSosButton(
                     cancellationTokenSource.token
                 ).addOnSuccessListener { location ->
                     if (location != null) {
+                        Log.e("SOS","${location.latitude},${location.longitude}")
                         viewModel.sendSOS(
                             lat = location.latitude,
                             lon = location.longitude
