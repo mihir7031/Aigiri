@@ -84,7 +84,10 @@ dependencies {
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.appcompat)
+<<<<<<< HEAD
     implementation(libs.play.services.location)
+=======
+>>>>>>> recovered-work
 
 
     // Test dependencies

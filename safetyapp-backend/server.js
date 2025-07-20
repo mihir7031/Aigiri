@@ -213,6 +213,7 @@ app.get("/profile", async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 app.post("/send-sos", async (req, res) => {
     try {
         const { userId, message } = req.body;
@@ -261,5 +262,8 @@ app.post("/send-sos", async (req, res) => {
         res.status(500).json({ error: "Failed to send SOS" });
     }
 });
+=======
+
+>>>>>>> recovered-work
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

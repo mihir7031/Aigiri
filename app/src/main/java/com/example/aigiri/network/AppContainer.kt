@@ -9,4 +9,8 @@ object AppContainer {
 
     val otpApiService = retrofit.create(com.example.aigiri.service.OtpApiService::class.java)
 
+<<<<<<< HEAD
+=======
+    val otpRepository = com.example.aigiri.repository.OtpRepository(otpApiService)
+>>>>>>> recovered-work
 }

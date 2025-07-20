@@ -26,7 +26,11 @@
 #### 2. 🛡️ Safety Walk
 - Provides **safe route suggestions** based on user feedback and reports
 - Includes:
+<<<<<<< HEAD
   - 🎙️ **evidence recording**
+=======
+  - 🎙️ **Audio evidence recording**
+>>>>>>> recovered-work
   - 📍 **Live location sharing** with emergency contacts
   - 📞 **Fake call** feature to escape uncomfortable situations
   - 📝 **Reminder to carry spare paper** for safety or note-taking
