@@ -1,9 +1,12 @@
 package com.example.aigiri.ui.components
 
+<<<<<<< HEAD
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
+=======
+>>>>>>> recovered-work
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -29,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+<<<<<<< HEAD
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.aigiri.viewmodel.SOSViewModel
@@ -36,6 +40,10 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+=======
+import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
+>>>>>>> recovered-work
 
 data class NavigationItem(val name: String, val icon: ImageVector, val route: String)
 
@@ -54,9 +62,12 @@ fun BottomNavBar(
     navController: NavHostController,
     primaryColor: Color = Color(0xFF6A1B9A),
 //    icon highlight color
+<<<<<<< HEAD
     viewModel: SOSViewModel,
     context: Context,
 
+=======
+>>>>>>> recovered-work
 ) {
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = navBackStackEntry?.destination?.route
@@ -125,9 +136,16 @@ fun BottomNavBar(
         }
 
         AnimatedSosButton(
+<<<<<<< HEAD
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = (-10).dp) ,viewModel,context
+=======
+            navController = navController,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-10).dp) // slightly lower into nav bar
+>>>>>>> recovered-work
         )
 
     }
@@ -136,11 +154,15 @@ fun BottomNavBar(
 
 
 @Composable
+<<<<<<< HEAD
 fun AnimatedSosButton(
     modifier: Modifier,
     viewModel: SOSViewModel,
     context: Context
 ) {
+=======
+fun AnimatedSosButton(navController: NavHostController, modifier: Modifier) {
+>>>>>>> recovered-work
     val infiniteTransition = rememberInfiniteTransition()
     val pulseAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
@@ -151,8 +173,15 @@ fun AnimatedSosButton(
         )
     )
 
+<<<<<<< HEAD
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
+=======
+<<<<<<< HEAD
+    val fusedLocationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
+>>>>>>> recovered-branch
 
     var isPressed by remember { mutableStateOf(false) }
     var navigate by remember { mutableStateOf(false) }
@@ -201,6 +230,23 @@ fun AnimatedSosButton(
             }
 
             isPressed = false
+
+    var isPressed by remember { mutableStateOf(false) }
+    var navigate by remember { mutableStateOf(false) }
+
+    // Correct usage: perform side effect after state change
+    LaunchedEffect(navigate) {
+        if (navigate) {
+            delay(200)
+            isPressed = false
+            navController.navigate("add_contacts") {
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+>>>>>>> recovered-work
             navigate = false
         }
     }
@@ -223,7 +269,11 @@ fun AnimatedSosButton(
         FloatingActionButton(
             onClick = {
                 isPressed = true
+
                 navigate = true
+
+                navigate = true // Triggers LaunchedEffect
+
             },
             containerColor = buttonColor,
             contentColor = Color.White,
@@ -240,3 +290,4 @@ fun AnimatedSosButton(
         }
     }
 }
+
