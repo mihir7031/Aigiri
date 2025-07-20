@@ -1,7 +1,14 @@
 package com.example.aigiri.repository
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.telephony.SmsManager
+import com.example.aigiri.model.SOSRequest
+import com.example.aigiri.network.SOSApiClient.api
+import com.example.aigiri.service.SOSApiService
+
 class SOSRepository(
-    private val api: SOSApiService,
     private val context: Context
 ) {
 

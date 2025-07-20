@@ -52,6 +52,7 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
     val liveStreamViewModel=remember{LiveStreamViewModel(tokenManager = TokenManager(context =context))}
     val settingsViewModel= remember { SettingsViewModel(tokenManager = TokenManager(context)) }
     val ChatViewModel= remember { ChatViewModel(ChatRepository()) }
+    val SOSViewModel=remember{SOSViewModel(SOSRepository(context =context), emergencyRepository = EmergencyContactsRepository(), userRepository = UserRepository(), tokenManager = TokenManager(context))}
     NavHost(navController = navController, startDestination = startDestination) {
         composable("splash") {
             SplashScreen(onSplashComplete = {
@@ -99,7 +100,9 @@ fun AppNavigation(startDestination: String, tokenManager: TokenManager) {
                 viewModel = dashboardViewModel,
                 navController = navController,
                 tokenManager = tokenManager,
-                liveStreamViewModel = liveStreamViewModel
+                liveStreamViewModel = liveStreamViewModel,
+                SOSViewModel = SOSViewModel,
+                Context = context
             )
         }
 

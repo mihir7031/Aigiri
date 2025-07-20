@@ -213,6 +213,53 @@ app.get("/profile", async (req, res) => {
   }
 });
 
+app.post("/send-sos", async (req, res) => {
+    try {
+        const { userId, message } = req.body;
 
+        if (!userId || !message) {
+            return res.status(400).json({ error: "Missing userId or message" });
+        }
+
+        // Fetch emergency contacts from Firestore subcollection
+        const contactsSnapshot = await db
+            .collection("users")
+            .doc(userId)
+            .collection("emergency_contacts")
+            .orderBy("priority", "asc") // Optional: sort by priority
+            .get();
+
+        if (contactsSnapshot.empty) {
+            return res.status(404).json({ error: "No emergency contacts found" });
+        }
+
+        const phoneNumbers = contactsSnapshot.docs.map(doc => doc.data().phoneNumber);
+
+        // Send SOS message to each contact
+        const sendMessages = phoneNumbers.map(phone => {
+            return twilioClient.messages.create({
+                body: message,
+                from: TWILIO_PHONE_NUMBER,
+                to: phone
+            });
+        });
+
+        await Promise.all(sendMessages);
+
+        // Store the SOS record (optional)
+        await db.collection("sos_alerts").add({
+            userId,
+            message,
+            timestamp: new Date().toISOString()
+        });
+
+        console.log(`🚨 SOS sent to ${phoneNumbers.length} contacts`);
+        res.status(200).json({ success: true });
+
+    } catch (err) {
+        console.error("Failed to send SOS:", err);
+        res.status(500).json({ error: "Failed to send SOS" });
+    }
+});
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

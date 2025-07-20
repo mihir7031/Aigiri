@@ -1,6 +1,7 @@
 package com.example.aigiri.ui.components
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -27,10 +28,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.aigiri.viewmodel.SOSViewModel
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.delay
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 
 data class NavigationItem(val name: String, val icon: ImageVector, val route: String)
 
@@ -49,6 +53,9 @@ fun BottomNavBar(
     navController: NavHostController,
     primaryColor: Color = Color(0xFF6A1B9A),
 //    icon highlight color
+    viewModel: SOSViewModel,
+    context: Context,
+
 ) {
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = navBackStackEntry?.destination?.route
@@ -117,10 +124,9 @@ fun BottomNavBar(
         }
 
         AnimatedSosButton(
-            navController = navController,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-10).dp) // slightly lower into nav bar
+                .offset(y = (-10).dp) ,viewModel,context
         )
 
     }
@@ -130,11 +136,9 @@ fun BottomNavBar(
 
 @Composable
 fun AnimatedSosButton(
-    navController: NavHostController,
     modifier: Modifier,
     viewModel: SOSViewModel,
-    context: Context,
-    userPhoneNumber: String
+    context: Context
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val pulseAlpha by infiniteTransition.animateFloat(
@@ -155,21 +159,51 @@ fun AnimatedSosButton(
 
     LaunchedEffect(navigate) {
         if (navigate) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    viewModel.sendSOS(
-                        userPhoneNumber = userPhoneNumber,
-                        lat = location.latitude,
-                        lon = location.longitude
-                    )
-                } else {
-                    Toast.makeText(context, "❌ Failed to get location", Toast.LENGTH_SHORT).show()
+            val permissionState = ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            )
+
+            if (permissionState == PackageManager.PERMISSION_GRANTED) {
+                val cancellationTokenSource = CancellationTokenSource()
+
+                fusedLocationClient.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,  // ✅ Correct usage of Priority
+                    cancellationTokenSource.token
+                ).addOnSuccessListener { location ->
+                    if (location != null) {
+                        viewModel.sendSOS(
+                            lat = location.latitude,
+                            lon = location.longitude
+                        )
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "❌ Failed to get current location",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }.addOnFailureListener {
+                    Toast.makeText(
+                        context,
+                        "⚠️ Error getting location: ${it.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+
+            } else {
+                Toast.makeText(
+                    context,
+                    "📍 Location permission not granted",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
             isPressed = false
             navigate = false
         }
     }
+
 
     val buttonColor = if (isPressed) Color(0xFF4CAF50) else Color.Red
 

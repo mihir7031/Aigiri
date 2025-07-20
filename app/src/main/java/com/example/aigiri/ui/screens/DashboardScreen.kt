@@ -2,6 +2,7 @@ package com.example.aigiri.ui.screens
 
 
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,7 +25,7 @@ import com.example.aigiri.ui.components.LiveButton
 import com.example.aigiri.ui.components.TopNavBar
 import com.example.aigiri.viewmodel.DashboardViewModel
 import com.example.aigiri.viewmodel.LiveStreamViewModel
-
+import com.example.aigiri.viewmodel.SOSViewModel
 
 
 @Composable
@@ -32,7 +33,9 @@ fun DashboardScreen(
     viewModel: DashboardViewModel,
     navController: NavHostController,
     tokenManager: TokenManager,
-    liveStreamViewModel: LiveStreamViewModel
+    liveStreamViewModel: LiveStreamViewModel,
+    SOSViewModel:SOSViewModel,
+    Context: Context
 ) {
     val primaryPurple = Color(0xFF6A1B9A)
     val lightPurple = Color(0xFFF1E6FF)
@@ -41,7 +44,7 @@ fun DashboardScreen(
             TopNavBar(title = "Aigiri",viewModel=viewModel, navController=navController, tokenManager=tokenManager)
         },
         bottomBar = {
-            BottomNavBar(navController)
+            BottomNavBar(navController,viewModel=SOSViewModel, context =Context)
         }
     ) { paddingValues ->
         DashboardContent(
